@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teen Finance App</title>
+<style>
+body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
+.sidebar {
+  width: 100px;
+  background-color: #22012c;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+.sidebar button {
+  position: relative;
+  background: none;
+  border: none;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+/* Hide the text by default, show on hover */
+.sidebar button .tooltip-text {
+  visibility: hidden;
+  width: max-content;
+  background-color: #444;
+  color: #fff;
+  text-align: center;
+  padding: 5px 8px;
+  border-radius: 5px;
+
+  /* Position the tooltip */
+  position: absolute;
+  left: 100%; /* appear to the right of icon */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+
+  /* Fade in/out */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Show tooltip on hover */
+.sidebar button:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+.sidebar button:hover {
+  background-color: #444;
+}
+.main {
+  flex-grow:1;
+  padding: 20px;
+  overflow-y: auto;
+}
+.section { display: none; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <button onclick="showSection('addCard')">
+    <img src="https://cdn-icons-png.flaticon.com/512/771/771508.png" 
+        alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
+     <span class="tooltip-text">Cards</span>
+    </button>
+
+  <button onclick="showSection('statistics')">
+    <img src="https://cdn-icons-png.flaticon.com/512/15550/15550149.png" 
+        alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
+    <span class="tooltip-text">Statistics</span></button>
+
+  <button onclick="showSection('goalsBills')">
+    <img src="https://cdn-icons-png.flaticon.com/512/14699/14699785.png" 
+        alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
+    <span class="tooltip-text">Goals & Bills</span></button>
+  <button onclick="showSection('chatbot')">
+    <img src="https://cdn-icons-png.freepik.com/512/10063/10063451.png" 
+        alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
+    <span class="tooltip-text">Chatbot</span></button>
+  <button onclick="showSection('courses')">
+    <img src="https://cdn-icons-png.freepik.com/512/14843/14843045.png" 
+        alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
+    <span class="tooltip-text">Courses</span></button>
+  <button onclick="showSection('badges')">
+    <img src="https://cdn-icons-png.flaticon.com/512/6793/6793440.png" 
+        alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
+    <span class="tooltip-text">Badges</span></button>
+</div>
+
+<div class="main">
+  <div id="addCard" class="section">
+    <h2>Add Card</h2>
+    <p>Feature not available yet.</p>
+  </div>
+
+  <div id="statistics" class="section">
+    <h2>Statistics</h2>
+    <p>Money earned: $500</p>
+    <p>Money spent: $200</p>
+  </div>
+
+  <div id="goalsBills" class="section">
+    <h2>Goals & Bills</h2>
+    <p>Here you can add goals and bills (like phone plan, wifi, etc.)</p>
+  </div>
+
+  <div id="chatbot" class="section">
+    <h2>Chatbot</h2>
+    <p>Talk to the bot for advice or search for better plans.</p>
+  </div>
+
+  <div id="courses" class="section">
+    <h2>Money Courses</h2>
+    <p>List of courses teaching about saving money.</p>
+  </div>
+
+  <div id="badges" class="section">
+    <h2>Badges</h2>
+    <p>Quests completed: Saving $100, Logged in 5 days, 1-year subscriber...</p>
+  </div>
+</div>
+
+<script>
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s => s.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+// Show default section
+showSection('goalsBills');
+</script>
+
+</body>
+</html>
