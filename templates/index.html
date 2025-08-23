@@ -7,7 +7,7 @@
 <style>
 body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
 .sidebar {
-  width: 100px;
+  width: 80px;
   background-color: #22012c;
   color: white;
   display: flex;
@@ -24,6 +24,24 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
   cursor: pointer;
   font-size: 16px;
 }
+
+.progress-container {
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 20px;
+  width: 0%;
+  background-color: #28a745;
+  text-align: center;
+  color: white;
+  line-height: 20px;
+  transition: width 0.3s ease;
+}
+
 /* Hide the text by default, show on hover */
 .sidebar button .tooltip-text {
   visibility: hidden;
@@ -108,7 +126,94 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
 
   <div id="goalsBills" class="section">
     <h2>Goals & Bills</h2>
-    <p>Here you can add goals and bills (like phone plan, wifi, etc.)</p>
+
+    <!-- Add Goal Button -->
+    <button onclick="openGoalPopup()" style="margin-bottom: 20px;">+ Add Goal</button>
+
+    <!-- Popup to add goal -->
+    <div id="goalPopup" class="popup">
+        <h3>Enter Goal</h3>
+        <input type="text" id="goalName" placeholder="Goal name (e.g. New Phone)">
+        <input type="number" id="goalTarget" placeholder="Target amount (e.g. 200)">
+        <br>
+        <button onclick="saveGoal()">Save</button>
+        <button onclick="closeGoalPopup()" style="background-color: red;">Cancel</button>
+    </div>
+
+    <!-- Update Goal Popup -->
+    <div id="updatePopup" class="popup">
+        <h3>Update Goal</h3>
+        <input type="number" id="savedAmount" placeholder="Amount saved">
+        <input type="text" id="savedMethod" placeholder="How did you save?">
+        <br>
+        <button id="updateSubmitBtn">Submit</button>
+        <button onclick="closeUpdatePopup()" style="background-color: red;">Cancel</button>
+    </div>
+
+    <!-- Goals will appear here -->
+    <div id="goalsList"></div>
+    </div>
+
+    <script>
+    /* Popup control */
+    function openGoalPopup() { document.getElementById("goalPopup").style.display = "block"; }
+    function closeGoalPopup() { document.getElementById("goalPopup").style.display = "none"; }
+    function openUpdatePopup() { document.getElementById("updatePopup").style.display = "block"; }
+    function closeUpdatePopup() { document.getElementById("updatePopup").style.display = "none"; }
+
+    /* Save a new goal */
+    function saveGoal() {
+    let name = document.getElementById("goalName").value;
+    let target = parseFloat(document.getElementById("goalTarget").value);
+
+    if (!name || !target) { alert("Please enter goal name and target amount."); return; }
+
+    let goalCard = document.createElement("div");
+    goalCard.className = "goal";
+    goalCard.innerHTML = `
+        <h3>${name}</h3>
+        <p>Target: $${target}</p>
+        <div class="progress-container">
+        <div class="progress-bar" id="bar-${name}">0%</div>
+        </div>
+        <button onclick="openUpdate('${name}', ${target})">Update</button>
+    `;
+
+    document.getElementById("goalsList").appendChild(goalCard);
+    closeGoalPopup();
+    document.getElementById("goalName").value = "";
+    document.getElementById("goalTarget").value = "";
+    }
+
+    /* Open update popup and save current goal reference */
+    let currentGoalName = "";
+    let currentGoalTarget = 0;
+    function openUpdate(name, target) {
+    currentGoalName = name;
+    currentGoalTarget = target;
+    openUpdatePopup();
+    }
+
+    /* Submit update for goal */
+    document.getElementById("updateSubmitBtn").addEventListener("click", function() {
+    let saved = parseFloat(document.getElementById("savedAmount").value);
+    let method = document.getElementById("savedMethod").value;
+
+    if (!saved || saved < 0) { alert("Enter a valid saved amount."); return; }
+
+    let percent = Math.min((saved / currentGoalTarget) * 100, 100).toFixed(1);
+    let bar = document.getElementById("bar-" + currentGoalName);
+    bar.style.width = percent + "%";
+    bar.innerText = percent + "%";
+
+    alert(`You saved $${saved} by ${method}`); // optional feedback
+    closeUpdatePopup();
+
+    // Clear inputs
+    document.getElementById("savedAmount").value = "";
+    document.getElementById("savedMethod").value = "";
+    });
+    </script>
   </div>
 
   <div id="chatbot" class="section">
