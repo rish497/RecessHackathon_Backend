@@ -9,8 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+GENAI_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GENAI_API_KEY:
+    raise ValueError("Missing GOOGLE_API_KEY environment variable!")
+client = genai.Client(api_key=GENAI_API_KEY)
 
-client = genai.Client()
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message", "")
