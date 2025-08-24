@@ -25,23 +25,6 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
   font-size: 16px;
 }
 
-.progress-container {
-  background-color: #eee;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-.progress-bar {
-  height: 20px;
-  width: 0%;
-  background-color: #28a745;
-  text-align: center;
-  color: white;
-  line-height: 20px;
-  transition: width 0.3s ease;
-}
-
 /* Hide the text by default, show on hover */
 .sidebar button .tooltip-text {
   visibility: hidden;
@@ -63,7 +46,25 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
   opacity: 0;
   transition: opacity 0.3s;
 }
+.chat-message {
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
 
+.chat-user {
+    background-color: #e0e0e0;
+    text-align: right;
+    margin-left: auto;
+}
+
+.chat-bot {
+    background-color: #d1ecf1;
+    text-align: left;
+    margin-right: auto;
+}
 /* Show tooltip on hover */
 .sidebar button:hover .tooltip-text {
   visibility: visible;
@@ -77,8 +78,24 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
   padding: 20px;
   overflow-y: auto;
 }
+
+.history-btn {
+  background: #eee;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 5px;
+}
+.history-btn:hover {
+  background: #d5b6f2;
+}
+
 .section { display: none; }
 </style>
+
+
 </head>
 <body>
 
@@ -124,102 +141,350 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
     <p>Money spent: $200</p>
   </div>
 
+
+  <!---GOAL AND BILL PAGE START-->
   <div id="goalsBills" class="section">
-    <h2>Goals & Bills</h2>
+    <h2>🌟 Goals & Bills</h2>
 
-    <!-- Add Goal Button -->
-    <button onclick="openGoalPopup()" style="margin-bottom: 20px;">+ Add Goal</button>
+    <!-- Buttons -->
+    <button class="btn" onclick="openGoalModal()">+ Enter Goal</button>
+    <button id="updateBtn" class="btn secondary" onclick="openUpdateModal()" style="display:none;">✏️ Update Goal</button>
 
-    <!-- Popup to add goal -->
-    <div id="goalPopup" class="popup">
-        <h3>Enter Goal</h3>
-        <input type="text" id="goalName" placeholder="Goal name (e.g. New Phone)">
-        <input type="number" id="goalTarget" placeholder="Target amount (e.g. 200)">
-        <br>
-        <button onclick="saveGoal()">Save</button>
-        <button onclick="closeGoalPopup()" style="background-color: red;">Cancel</button>
+    <!-- Goal List -->
+    <div id="goalList"></div>
+
+    <!-- Enter Goal Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+        <span class="close" onclick="closeModal('goalModal')">&times;</span>
+        <h3>🎯 Enter a New Goal</h3>
+        <input type="text" id="goalName" placeholder="Goal name">
+        <input type="number" id="goalTarget" placeholder="Target amount">
+        <button class="btn" onclick="addGoal()">Save Goal</button>
+        </div>
     </div>
 
-    <!-- Update Goal Popup -->
-    <div id="updatePopup" class="popup">
-        <h3>Update Goal</h3>
-        <input type="number" id="savedAmount" placeholder="Amount saved">
-        <input type="text" id="savedMethod" placeholder="How did you save?">
-        <br>
-        <button id="updateSubmitBtn">Submit</button>
-        <button onclick="closeUpdatePopup()" style="background-color: red;">Cancel</button>
+    <!-- Update Goal Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+        <span class="close" onclick="closeModal('updateModal')">&times;</span>
+        <h3>💰 Update Goal</h3>
+        <select id="goalSelect"></select>
+        <input type="number" id="goalSaved" placeholder="Amount saved">
+        <textarea id="goalNote" placeholder="Reason for this saving..." rows="2" style="width: 90%; margin: 8px 0; border-radius: 8px; padding: 8px;"></textarea>
+        <button class="btn secondary" onclick="updateGoal()">Update</button>
+
+        </div>
+    </div>
     </div>
 
-    <!-- Goals will appear here -->
-    <div id="goalsList"></div>
-    </div>
+    <style>
+    /* General Section */
+    #goalsBills {
+    background: #f3e9f7; /* light purple */
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    #goalsBills h2 {
+    color: #5a2d82; /* deep purple */
+    margin-bottom: 15px;
+    }
+
+    /* Buttons */
+    .btn {
+    background: #7b3cb1;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+    font-size: 14px;
+    transition: background 0.3s;
+    }
+    .btn:hover {
+    background: #9c55d4;
+    }
+    .btn.secondary {
+    background: #5a2d82;
+    }
+    .btn.secondary:hover {
+    background: #7b3cb1;
+    }
+
+    /* Modal styles */
+    .modal {
+    display: none; 
+    position: fixed; 
+    z-index: 10; 
+    left: 0; top: 0; 
+    width: 100%; height: 100%; 
+    background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+    background: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 320px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .modal-content h3 {
+    margin-bottom: 15px;
+    color: #5a2d82;
+    }
+    .modal-content input, .modal-content select {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    }
+    .close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+    color: #5a2d82;
+    }
+
+    /* Progress bar */
+.progress-bar {
+  height: 22px;
+  width: 0%; /* starts empty */
+  background: linear-gradient(90deg, #7b3cb1, #9c55d4); /* purple gradient */
+  text-align: center;
+  color: white;
+  font-size: 12px;
+  line-height: 22px;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+    </style>
 
     <script>
-    /* Popup control */
-    function openGoalPopup() { document.getElementById("goalPopup").style.display = "block"; }
-    function closeGoalPopup() { document.getElementById("goalPopup").style.display = "none"; }
-    function openUpdatePopup() { document.getElementById("updatePopup").style.display = "block"; }
-    function closeUpdatePopup() { document.getElementById("updatePopup").style.display = "none"; }
+    let goals = {};
 
-    /* Save a new goal */
-    function saveGoal() {
-    let name = document.getElementById("goalName").value;
-    let target = parseFloat(document.getElementById("goalTarget").value);
-
-    if (!name || !target) { alert("Please enter goal name and target amount."); return; }
-
-    let goalCard = document.createElement("div");
-    goalCard.className = "goal";
-    goalCard.innerHTML = `
-        <h3>${name}</h3>
-        <p>Target: $${target}</p>
-        <div class="progress-container">
-        <div class="progress-bar" id="bar-${name}">0%</div>
-        </div>
-        <button onclick="openUpdate('${name}', ${target})">Update</button>
-    `;
-
-    document.getElementById("goalsList").appendChild(goalCard);
-    closeGoalPopup();
-    document.getElementById("goalName").value = "";
-    document.getElementById("goalTarget").value = "";
+    function openGoalModal(){
+    document.getElementById("goalModal").style.display="block";
+    }
+    function openUpdateModal(){
+    document.getElementById("updateModal").style.display="block";
+    // populate dropdown
+    let select = document.getElementById("goalSelect");
+    select.innerHTML = "";
+    for(let g in goals){
+        let opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = g;
+        select.appendChild(opt);
+    }
+    }
+    function closeModal(id){
+    document.getElementById(id).style.display="none";
     }
 
-    /* Open update popup and save current goal reference */
-    let currentGoalName = "";
-    let currentGoalTarget = 0;
-    function openUpdate(name, target) {
-    currentGoalName = name;
-    currentGoalTarget = target;
-    openUpdatePopup();
+    // Add new goal
+    function addGoal() {
+        let name = document.getElementById("goalName").value;
+        let target = parseFloat(document.getElementById("goalTarget").value);
+        if (!name || !target) return alert("Fill both fields!");
+
+        // Initialize goal with history array
+        goals[name] = { target: target, saved: 0, history: [] };
+
+        let list = document.getElementById("goalList");
+        let div = document.createElement("div");
+        div.id = "goal-" + name;
+        div.style.marginTop = "20px"; // spacing between goals
+        div.innerHTML = `
+            <h4>${name} ($0 / $${target})</h4>
+            <div class="progress-bar" id="bar-${name}" style="width:1%;">0%</div>
+            <button class="history-btn" onclick="showHistory('${name}')">View History</button>
+        `;
+        list.appendChild(div);
+
+        document.getElementById("updateBtn").style.display = "inline-block"; // show update button
+        closeModal("goalModal");
     }
 
-    /* Submit update for goal */
-    document.getElementById("updateSubmitBtn").addEventListener("click", function() {
-    let saved = parseFloat(document.getElementById("savedAmount").value);
-    let method = document.getElementById("savedMethod").value;
+    
+    //History Button
+    function showHistory(name){
+        let history = goals[name].history;
+        let modal = document.createElement("div");
+        modal.className = "modal";
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                <h3>History for ${name}</h3>
+                <ul>
+                    ${history.map(h => `<li>$${h.amount} - ${h.note} (${h.date})</li>`).join("<br><br>")}
+                </ul>
 
-    if (!saved || saved < 0) { alert("Enter a valid saved amount."); return; }
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = "block";
+    }
 
-    let percent = Math.min((saved / currentGoalTarget) * 100, 100).toFixed(1);
-    let bar = document.getElementById("bar-" + currentGoalName);
+    
+    // Update goal progress
+    function updateGoal(){
+    let name = document.getElementById("goalSelect").value;
+    let amount = parseFloat(document.getElementById("goalSaved").value);
+    if(!amount) return alert("Enter amount!");
+
+    goals[name].saved += amount;
+    let percent = Math.min((goals[name].saved / goals[name].target) * 100, 100).toFixed(1);
+
+    document.querySelector("#goal-" + name + " h4").innerText =
+        `${name} ($${goals[name].saved} / $${goals[name].target})`;
+
+    let bar = document.getElementById("bar-" + name);
     bar.style.width = percent + "%";
     bar.innerText = percent + "%";
 
-    alert(`You saved $${saved} by ${method}`); // optional feedback
-    closeUpdatePopup();
-
-    // Clear inputs
-    document.getElementById("savedAmount").value = "";
-    document.getElementById("savedMethod").value = "";
+    closeModal("updateModal");
+    goals[name].history.push({
+        amount: amount,
+        note: document.getElementById("goalNote")?.value || "No note",
+        date: new Date().toLocaleString()
     });
+    }
     </script>
-  </div>
+<!---GOAL AND BILL PAGE END-->
 
-  <div id="chatbot" class="section">
-    <h2>Chatbot</h2>
+<!--GEMINI CHATBOT START-->
+<div id="chatbot" class="section">
+    <h2>Chatbot 🤖</h2>
     <p>Talk to the bot for advice or search for better plans.</p>
-  </div>
+
+    <!-- Chat box -->
+    <div id="chatbox" class="chatbox"></div>
+
+    <!-- Input area -->
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button class="btn" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<!-- Include marked.js for Markdown support -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+/* Chatbox styling */
+.chatbox {
+    width: 100%;
+    height: 400px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background: #f3e9f7;  /* light purple */
+    overflow-y: auto;
+    padding: 10px;
+    margin-top: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+/* Chat input styling */
+.chat-input {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.chat-input button {
+    background: #7b3cb1; /* purple theme button */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.chat-input button:hover {
+    background: #9c55d4;
+}
+
+/* Chat messages */
+.chatbox div {
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    word-wrap: break-word;
+}
+
+/* Bot messages */
+.bot-msg {
+    background: #e6d6f0; /* slightly darker purple */
+    text-align: left;
+}
+
+/* User messages */
+.user-msg {
+    background: #d1c1e8; /* lighter purple */
+    text-align: right;
+}
+
+/* Bold and strong styling */
+.bot-msg b, .bot-msg strong {
+    color: #5a2d82; /* deep purple */
+}
+
+/* Lists in bot messages */
+.bot-msg ul {
+    padding-left: 20px;
+    margin: 5px 0;
+}
+.bot-msg li {
+    margin-bottom: 4px;
+}
+</style>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chatbox = document.getElementById("chatbox");
+    // Show user's message
+    chatbox.innerHTML += `<div class="user-msg"><b>You:</b> ${message}</div>`;
+    input.value = "";
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message })
+        });
+        const data = await response.json();
+        // Convert bot's Markdown response to HTML
+        const html = marked.parse(data.response);
+        chatbox.innerHTML += `<div class="bot-msg"><b>Bot:</b> ${html}</div>`;
+    } catch (err) {
+        chatbox.innerHTML += `<div class="bot-msg"><b>Bot:</b> Sorry, something went wrong.</div>`;
+    }
+
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+</script>
+
+
+<!--GEMINI CHATBOT END-->
 
   <div id="courses" class="section">
     <h2>Money Courses</h2>
