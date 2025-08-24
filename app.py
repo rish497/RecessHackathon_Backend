@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 from google import genai
 from google.genai import types
+import os
+import requests
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -21,6 +24,15 @@ def chat():
         bot_reply = "Sorry, something went wrong."
 
     return jsonify({"response": bot_reply})
+
+YOUTUBE_API_KEY = os.getenv("API_KEY_YOUTUBE")
+
+@app.route("/youtube", methods=["GET"])
+def youtube_search():
+    query = request.args.get("q")
+    url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q={query}&key={YOUTUBE_API_KEY}"
+    response = requests.get(url)
+    return jsonify(response.json())
 
 @app.route("/")
 def home():
