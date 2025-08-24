@@ -4,14 +4,13 @@ from google.genai import types
 
 app = Flask(__name__)
 
-client = genai.Client()  # assumes your GOOGLE_API_KEY is set in environment
-
+client = genai.Client()
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message", "")
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash",  # choose your model
+            model="gemini-2.5-flash",
             contents=user_message,
             config=types.GenerateContentConfig(
                 thinking_config=types.ThinkingConfig(thinking_budget=0)
