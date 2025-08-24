@@ -4,6 +4,9 @@ from google.genai import types
 import os
 import requests
 from flask import Flask, request, jsonify
+import google.genai as genai
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
