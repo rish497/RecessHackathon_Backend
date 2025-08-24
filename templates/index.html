@@ -139,7 +139,7 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
   <button onclick="showSection('goalsBills')">
     <img src="https://cdn-icons-png.flaticon.com/512/14699/14699785.png" 
         alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
-    <span class="tooltip-text">Goals & Bills</span></button>
+    <span class="tooltip-text">Financial Goals</span></button>
   <button onclick="showSection('chatbot')">
     <img src="https://cdn-icons-png.freepik.com/512/10063/10063451.png" 
         alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
@@ -164,7 +164,7 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
 <div id="Budgeting" class="section">
   <h2>Spending & Budgets</h2>
   <div class="budget-summary">
-    <p><strong>Total Budgets:</strong> <span id="total-spent">0</span> of <span id="total-budgeted">0</span></p>
+    <p><strong>Total Budgets:</strong> <span id="total-spent">$0</span> of <span id="total-budgeted">$0</span></p>
   </div>
 
   <div id="budget-grid" class="budget-grid"></div>
@@ -283,6 +283,7 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
     height: 55px;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
   }
 
   .add-budget-btn:hover {
@@ -450,8 +451,8 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
       grid.appendChild(card);
     });
 
-    document.getElementById("total-budgeted").textContent = totalBudgeted;
-    document.getElementById("total-spent").textContent = totalSpent;
+    document.getElementById("total-budgeted").textContent = '$'+totalBudgeted;
+    document.getElementById("total-spent").textContent = '$'+totalSpent;
   }
 </script>
 
@@ -460,7 +461,7 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
 
   <!---GOAL AND BILL PAGE START-->
   <div id="goalsBills" class="section">
-    <h2>🌟 Goals & Bills</h2>
+    <h2>🏆 Financial Goals </h2>
 
     <!-- Buttons -->
     <button class="btn" onclick="openGoalModal()">+ Enter Goal</button>
@@ -487,7 +488,7 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
         <h3>💰 Update Goal</h3>
         <select id="goalSelect"></select>
         <input type="number" id="goalSaved" placeholder="Amount saved">
-        <textarea id="goalNote" placeholder="Reason for this saving..." rows="2" style="width: 90%; margin: 8px 0; border-radius: 8px; padding: 8px;"></textarea>
+        <textarea id="goalNote" placeholder="How was this done..." rows="2" style="width: 90%; margin: 8px 0; border-radius: 8px; padding: 8px;"></textarea>
         <button class="btn secondary" onclick="updateGoal()">Update</button>
 
         </div>
@@ -622,6 +623,14 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
 
         document.getElementById("updateBtn").style.display = "inline-block"; 
         closeModal("goalModal");
+
+        let safeName = name.replace(/\s/g, "_");
+            div.id = "goal-" + safeName;
+            div.innerHTML = `
+                <h4>${name} ($0 / $${target})</h4>
+                <div class="progress-bar" id="bar-${safeName}" style="width:1%;">0%</div>
+                <button class="history-btn" onclick="showHistory('${name}')">View History</button>
+            `;
     }
 
     
@@ -649,23 +658,38 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
     function updateGoal(){
         let name = document.getElementById("goalSelect").value;
         let amount = parseFloat(document.getElementById("goalSaved").value);
-        if(!amount) return alert("Enter amount!");
+        let note = document.getElementById("goalNote").value || "";
 
+        if (isNaN(amount)) return alert("Enter a valid amount!");
+
+        // Add to saved
         goals[name].saved += amount;
+
+        // ADD HISTORY ENTRY
+        goals[name].history.push({
+            amount: amount,
+            note: note,
+            date: new Date().toLocaleDateString()
+        });
+
         let percent = Math.min((goals[name].saved / goals[name].target) * 100, 100).toFixed(1);
 
-        document.querySelector("#goal-" + name + " h4").innerText =
-            `${name} ($${goals[name].saved} / $${goals[name].target})`;
+        const safeName = name.replace(/\s/g, "_");
+        const goalDiv = document.getElementById("goal-" + safeName);
+        if(!goalDiv) return alert("Goal not found!");
 
-        let bar = document.getElementById("bar-" + name);
-        bar.style.width = percent + "%";
-        bar.innerText = percent + "%";
+        goalDiv.querySelector("h4").innerText = `${name} ($${goals[name].saved} / $${goals[name].target})`;
+        const bar = document.getElementById("bar-" + safeName);
+        if(bar) {
+            bar.style.width = percent + "%";
+            bar.innerText = percent + "%";
+        }
 
         closeModal("updateModal");
-
-       
         checkAllBadges();
     }
+
+
 
     </script>
 <!---GOAL AND BILL PAGE END-->
