@@ -131,10 +131,10 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
      <span class="tooltip-text">Cards</span>
     </button>
 
-  <button onclick="showSection('statistics')">
+  <button onclick="showSection('Budgeting')">
     <img src="https://cdn-icons-png.flaticon.com/512/15550/15550149.png" 
         alt="Card" style="width:40px; vertical-align:middle; margin-right:10px;">
-    <span class="tooltip-text">Statistics</span></button>
+    <span class="tooltip-text">Budgeting</span></button>
 
   <button onclick="showSection('goalsBills')">
     <img src="https://cdn-icons-png.flaticon.com/512/14699/14699785.png" 
@@ -160,11 +160,302 @@ body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; }
     <p>Feature not available yet.</p>
   </div>
 
-  <div id="statistics" class="section">
-    <h2>Statistics</h2>
-    <p>Money earned: $500</p>
-    <p>Money spent: $200</p>
+<!--BUDGETING PAGE START-->
+<div id="Budgeting" class="section">
+  <h2>Spending & Budgets</h2>
+  <div class="budget-summary">
+    <p><strong>Total Budgets:</strong> <span id="total-spent">0</span> of <span id="total-budgeted">0</span></p>
   </div>
+
+  <div id="budget-grid" class="budget-grid"></div>
+
+  <!-- Floating Add Button -->
+  <button class="add-budget-btn" onclick="openAddBudget()">+</button>
+</div>
+
+<!-- Add Budget Modal -->
+<div id="budgetModal" class="modal">
+  <div class="modal-content">
+    <h3 style="color:#5a2d82;">Add Budget</h3>
+    <label>Category:<br>
+      <input type="text" id="budgetCategory">
+    </label><br><br>
+    <label>Amount:<br>
+      <input type="number" id="budgetAmount">
+    </label><br><br>
+    <button class="btn" onclick="addBudget()">Add</button>
+    <button class="btn secondary" onclick="closeBudgetModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Add Spending Modal -->
+<div id="spendingModal" class="modal">
+  <div class="modal-content">
+    <h3 style="color:#5a2d82;">Add Spending</h3>
+    <p id="spendCategoryTitle"></p>
+    <label>Amount:<br>
+      <input type="number" id="spendingAmount">
+    </label><br><br>
+    <button class="btn" onclick="addSpending()">Add</button>
+    <button class="btn secondary" onclick="closeSpendingModal()">Cancel</button>
+  </div>
+</div>
+
+<style>
+  #Budgeting h2 {
+    color: #5a2d82;
+    margin-bottom: 15px;
+  }
+
+  .budget-summary {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #5a2d82;
+  }
+
+  .budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+  }
+
+  .budget-card {
+    background: #f3e9f7;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .budget-card:hover {
+    transform: scale(1.02);
+  }
+
+  .budget-card.overspent {
+    border-left: 4px solid red;
+  }
+
+  .budget-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #5a2d82;
+  }
+
+  .budget-amount {
+    color: #7b3cb1;
+    margin: 5px 0;
+  }
+
+  .budget-left {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .card-add-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #7b3cb1;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .card-add-btn:hover {
+    background: #5a2d82;
+  }
+
+  .add-budget-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #7b3cb1;
+    color: #fff;
+    font-size: 2rem;
+    border: none;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  .add-budget-btn:hover {
+    background: #5a2d82;
+  }
+
+  /* Modal styling */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .modal-content input {
+    width: 90%;
+    padding: 8px;
+    margin: 6px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+  .budget-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.budget-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budget-progress {
+  background: #eee;
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #7b3cb1, #5a2d82);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.budget-details {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.budget-left {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+</style>
+
+<script>
+  let budgets = [];
+  let activeCategory = null;
+
+  // === Budget Modal ===
+  function openAddBudget() {
+    document.getElementById("budgetModal").style.display = "flex";
+  }
+
+  function closeBudgetModal() {
+    document.getElementById("budgetModal").style.display = "none";
+    document.getElementById("budgetCategory").value = "";
+    document.getElementById("budgetAmount").value = "";
+  }
+
+  function addBudget() {
+    const category = document.getElementById("budgetCategory").value.trim();
+    const amount = parseFloat(document.getElementById("budgetAmount").value);
+
+    if (!category || isNaN(amount) || amount <= 0) return;
+
+    budgets.push({ category, budget: amount, spent: 0 });
+
+    renderBudgets();
+    closeBudgetModal();
+  }
+
+  // === Spending Modal ===
+  function openSpendingModal(index) {
+    activeCategory = index;
+    document.getElementById("spendCategoryTitle").textContent = "Category: " + budgets[index].category;
+    document.getElementById("spendingModal").style.display = "flex";
+  }
+
+  function closeSpendingModal() {
+    document.getElementById("spendingModal").style.display = "none";
+    document.getElementById("spendingAmount").value = "";
+  }
+
+  function addSpending() {
+    const amount = parseFloat(document.getElementById("spendingAmount").value);
+    if (!amount || activeCategory === null) return;
+
+    budgets[activeCategory].spent += amount;
+
+    renderBudgets();
+    closeSpendingModal();
+  }
+
+  // === Render UI ===
+  function renderBudgets() {
+    const grid = document.getElementById("budget-grid");
+    grid.innerHTML = "";
+
+    let totalBudgeted = 0;
+    let totalSpent = 0;
+
+    budgets.forEach((b, index) => {
+      totalBudgeted += b.budget;
+      totalSpent += b.spent;
+
+      const left = b.budget - b.spent;
+      const overspent = left < 0;
+
+      const card = document.createElement("div");
+      card.className = "budget-card " + (overspent ? "overspent" : "");
+      card.innerHTML = `
+        <div class="budget-header">
+            <span class="budget-title">${b.category}</span>
+            <button class="card-add-btn" onclick="openSpendingModal(${index})">+</button>
+        </div>
+        <div class="budget-progress">
+            <div class="progress-bar" style="width: ${(b.spent / b.budget) * 100}%"></div>
+        </div>
+        <div class="budget-details">
+            <span class="spent">$${b.spent}</span> of <span class="total">$${b.budget}</span>
+        </div>
+        <div class="budget-left">
+            ${overspent ? "Overspent $" + Math.abs(left) : "$" + left + " left"}
+        </div>
+    `;
+
+      grid.appendChild(card);
+    });
+
+    document.getElementById("total-budgeted").textContent = totalBudgeted;
+    document.getElementById("total-spent").textContent = totalSpent;
+  }
+</script>
+
+<!--BUDGETING PAGE END-->
 
 
   <!---GOAL AND BILL PAGE START-->

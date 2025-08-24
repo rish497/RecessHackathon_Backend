@@ -1,0 +1,41 @@
+<!--1-->
+
+<div id="Budgeting" class="section">
+  <h2>Spending & Budgets</h2> 
+  <div class="budget-summary">
+    <p><strong>Total Budgets:</strong> <span id="total-spent">0</span> of <span id="total-budgeted">0</span></p>
+  </div>
+
+  <div id="budget-grid" class="budget-grid"></div>
+
+  <!-- Floating Add Button -->
+  <button class="add-budget-btn" onclick="openAddBudget()">+</button>
+</div>
+
+<!-- Add Budget Modal -->
+<div id="budgetModal" class="modal">
+  <div class="modal-content">
+    <h3 style="color:#5a2d82;">Add Budget</h3>
+    <label>Category:<br>
+      <input type="text" id="budgetCategory">
+    </label><br><br>
+    <label>Amount:<br>
+      <input type="number" id="budgetAmount">
+    </label><br><br>
+    <button class="btn" onclick="addBudget()">Add</button>
+    <button class="btn secondary" onclick="closeBudgetModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Add Spending Modal -->
+<div id="spendingModal" class="modal">
+  <div class="modal-content">
+    <h3 style="color:#5a2d82;">Add Spending</h3>
+    <p id="spendCategoryTitle"></p>
+    <label>Amount:<br>
+      <input type="number" id="spendingAmount">
+    </label><br><br>
+    <button class="btn" onclick="addSpending()">Add</button>
+    <button class="btn secondary" onclick="closeSpendingModal()">Cancel</button>
+  </div>
+</div>
