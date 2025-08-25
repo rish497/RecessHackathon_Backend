@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)
+
 GENAI_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GENAI_API_KEY:
     raise ValueError("Missing GOOGLE_API_KEY environment variable!")
